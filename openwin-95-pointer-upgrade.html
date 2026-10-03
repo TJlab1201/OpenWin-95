@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenWin 95 - Pointer Upgrade Copy</title>
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background: #008080;
+      overflow: hidden;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      display: flex;
+      align-items: stretch;
+      justify-content: stretch;
+    }
+    iframe {
+      width: 100vw;
+      height: 100vh;
+      border: 0;
+      background: #008080;
+    }
+  </style>
+</head>
+<body>
+  <iframe id="openwin-frame" src="./openwin-95.html" title="OpenWin 95 desktop"></iframe>
+
+  <script>
+    function attachPointerSupport() {
+      const frame = document.getElementById('openwin-frame');
+      if (!frame || !frame.contentDocument) return false;
+
+      const doc = frame.contentDocument;
+      const titlebars = doc.querySelectorAll('.window-titlebar');
+
+      titlebars.forEach((titlebar) => {
+        // avoid attaching duplicate listeners
+        if (titlebar.dataset.pointerPatched === 'true') return;
+        titlebar.dataset.pointerPatched = 'true';
+
+        titlebar.addEventListener('pointerdown', (e) => {
+          if (e.button && e.button !== 0) return;
+
+          const win = titlebar.closest('.window');
+          if (!win) return;
+
+          // if the original code has initDrag, use it; otherwise fall back to a safe no-op
+          if (typeof window.initDrag === 'function') {
+            window.initDrag(e, win.id);
+          }
+
+          try {
+            win.setPointerCapture?.(e.pointerId);
+          } catch (err) {
+            // ignore unsupported capture cases
+          }
+        });
+
+        titlebar.addEventListener('pointerup', (e) => {
+          const win = titlebar.closest('.window');
+          if (win) {
+            try {
+              win.releasePointerCapture?.(e.pointerId);
+            } catch (err) {
+              // ignore unsupported release cases
+            }
+          }
+
+          if (typeof window.stopDrag === 'function') {
+            window.stopDrag();
+          }
+        });
+      });
+
+      return true;
+    }
+
+    const frame = document.getElementById('openwin-frame');
+    frame.addEventListener('load', () => {
+      attachPointerSupport();
+
+      const doc = frame.contentDocument;
+      if (!doc) return;
+
+      const observer = new MutationObserver(() => {
+        attachPointerSupport();
+      });
+
+      observer.observe(doc.body, {
+        childList: true,
+        subtree: true
+      });
+    });
+  </script>
+</body>
+</html>
