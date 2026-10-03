@@ -35,6 +35,7 @@
       if (!frame || !frame.contentDocument) return false;
 
       const doc = frame.contentDocument;
+      const contentWindow = frame.contentWindow;
       const titlebars = doc.querySelectorAll('.window-titlebar');
 
       titlebars.forEach((titlebar) => {
@@ -48,9 +49,9 @@
           const win = titlebar.closest('.window');
           if (!win) return;
 
-          // if the original code has initDrag, use it; otherwise fall back to a safe no-op
-          if (typeof window.initDrag === 'function') {
-            window.initDrag(e, win.id);
+          // Call initDrag from the iframe's contentWindow
+          if (typeof contentWindow.initDrag === 'function') {
+            contentWindow.initDrag(e, win.id);
           }
 
           try {
@@ -70,8 +71,9 @@
             }
           }
 
-          if (typeof window.stopDrag === 'function') {
-            window.stopDrag();
+          // Call stopDrag from the iframe's contentWindow
+          if (typeof contentWindow.stopDrag === 'function') {
+            contentWindow.stopDrag();
           }
         });
       });
