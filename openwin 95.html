@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>openwin 95 Desktop</title>
+  <style>
+    /* Guarantee visible browser cursor + custom retro pointer overlay */
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Force fallback visible cursors on all elements */
+    html, body, div, button, input, textarea, select, canvas, svg, span, a {
+      cursor: default !important;
+    }
+
+    button, .desktop-icon, .start-menu-item, .menubar-item, .task-item, .tab-btn, .win-button, select, input[type="radio"], input[type="checkbox"] {
+      cursor: pointer !important;
+    }
+
+    textarea, input[type="text"], input[type="number"], input[type="date"], input[type="time"] {
+      cursor: text !important;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 11px;
+      background-color: #008080;
+    }
+
+    /* Custom SVG Retro Cursor Overlay */
+    #custom-cursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 16px;
+      height: 24px;
+      pointer-events: none;
+      z-index: 9999999;
+      transform: translate(0, 0);
+      display: block;
+    }
+
+    /* Wallpapers & Background Patterns */
+    .bg-teal { background-color: #008080 !important; background-image: none !important; }
+    .bg-blue-rivets {
+      background-color: #000080 !important;
+      background-image: radial-gradient(#00ffff 15%, transparent 16%), radial-gradient(#00ffff 15%, transparent 16%) !important;
+      background-size: 16px 16px !important;
+      background-position: 0 0, 8px 8px !important;
+    }
+    .bg-red-blocks {
+      background-color: #800000 !important;
+      background-image: repeating-linear-gradient(45deg, #a52a2a 0, #a52a2a 10px, #800000 10px, #800000 20px) !important;
+    }
+    .bg-setup {
+      background-color: #000080 !important;
+      background-image: repeating-linear-gradient(0deg, #000080, #000080 4px, #008080 4px, #008080 8px) !important;
+    }
+    .bg-houndstooth {
+      background-color: #c0c0c0 !important;
+      background-image: repeating-linear-gradient(45deg, #000 0, #000 10px, #fff 10px, #fff 20px) !important;
+      background-size: 20px 20px !important;
+    }
+    .bg-straw-mat {
+      background-color: #d2b48c !important;
+      background-image: repeating-linear-gradient(0deg, #8b4513, #8b4513 2px, transparent 2px, transparent 8px) !important;
+    }
+    .bg-tiles {
+      background-color: #008080 !important;
+      background-image: linear-gradient(#fff 2px, transparent 2px), linear-gradient(90deg, #fff 2px, transparent 2px) !important;
+      background-size: 20px 20px !important;
+    }
+
+    /* Win95 Classic 3D Bevel Styling */
+    .win-outset {
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #000000;
+      border-bottom: 2px solid #000000;
+      box-shadow: inset 1px 1px #dfdfdf, inset -1px -1px #808080;
+      background-color: #c0c0c0;
+    }
+
+    .win-inset {
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #ffffff;
+      border-bottom: 2px solid #ffffff;
+      box-shadow: inset 1px 1px #000000, inset -1px -1px #dfdfdf;
+      background-color: #ffffff;
+    }
+
+    .win-button {
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #000000;
+      border-bottom: 2px solid #000000;
+      box-shadow: inset 1px 1px #dfdfdf, inset -1px -1px #808080;
+      background-color: #c0c0c0;
+      padding: 3px 10px;
+      font-size: 11px;
+      outline: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .win-button:active {
+      border-top: 2px solid #000000;
+      border-left: 2px solid #000000;
+      border-right: 2px solid #ffffff;
+      border-bottom: 2px solid #ffffff;
+      box-shadow: inset 1px 1px #808080, inset -1px -1px #dfdfdf;
+      padding: 4px 9px 2px 11px;
+    }
+
+    /* Desktop Layout */
+    #desktop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 28px;
+      overflow: hidden;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      gap: 15px;
+    }
+
+    .desktop-icon {
+      width: 75px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 4px;
+      border: 1px transparent dashed;
+    }
+
+    .desktop-icon span {
+      color: white;
+      text-shadow: 1px 1px 1px black;
+      margin-top: 5px;
+      word-break: break-word;
+      padding: 1px 2px;
+    }
+
+    .desktop-icon:focus span, .desktop-icon.selected span {
+      background-color: #000080;
+      outline: 1px dotted #ffffff;
+    }
+
+    /* Window Architecture */
+    .window {
+      position: absolute;
+      min-width: 220px;
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+      touch-action: none;
+    }
+
+    .window-titlebar {
+      height: 20px;
+      background: linear-gradient(90deg, #000080, #1084d0);
+      color: white;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2px 3px 2px 4px;
+      cursor: move !important;
+    }
+
+    .window.inactive .window-titlebar {
+      background: #808080;
+    }
+
+    .window-title-text {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      pointer-events: none;
+    }
+
+    .window-controls {
+      display: flex;
+      gap: 2px;
+    }
+
+    .win-btn-small {
+      width: 16px;
+      height: 14px;
+      font-size: 10px;
+      line-height: 10px;
+      font-weight: bold;
+      padding: 0;
+    }
+
+    .window-menubar {
+      display: flex;
+      gap: 12px;
+      padding: 2px 6px;
+      border-bottom: 1px solid #808080;
+      background: #c0c0c0;
+    }
+
+    .menubar-item {
+      padding: 1px 4px;
+    }
+
+    .menubar-item:hover {
+      background: #000080;
+      color: white;
+    }
+
+    .window-body {
+      flex: 1;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: auto;
+    }
+
+    /* Taskbar Layout (Start button on left, Clock on right opposite) */
+    #taskbar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 28px;
+      background-color: #c0c0c0;
+      border-top: 2px solid #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2px;
+      z-index: 9999;
+    }
+
+    #start-button {
+      height: 22px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0 6px;
+    }
+
+    #taskbar-tasks {
+      flex: 1;
+      display: flex;
+      gap: 2px;
+      margin: 0 4px;
+      overflow-x: auto;
+    }
+
+    .task-item {
+      height: 22px;
+      width: 140px;
+      max-width: 140px;
+      justify-content: flex-start;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .task-item.active {
+      border-top: 2px solid #000000;
+      border-left: 2px solid #000000;
+      border-right: 2px solid #ffffff;
+      border-bottom: 2px solid #ffffff;
+      box-shadow: inset 1px 1px #808080, inset -1px -1px #dfdfdf;
+      background: #e0e0e0;
+      font-weight: bold;
+    }
+
+    #system-tray {
+      height: 22px;
+      padding: 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Start Menu Layout */
+    #start-menu {
+      position: absolute;
+      bottom: 28px;
+      left: 0;
+      width: 190px;
+      background-color: #c0c0c0;
+      display: none;
+      z-index: 10000;
+    }
+
+    .start-menu-sidebar {
+      width: 25px;
+      background: linear-gradient(0deg, #000080, #1084d0);
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      padding: 8px 2px;
+      letter-spacing: 2px;
+    }
+
+    .start-menu-items {
+      flex: 1;
+      padding: 2px 0;
+    }
+
+    .start-menu-item {
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .start-menu-item:hover {
+      background-color: #000080;
+      color: white;
+    }
+
+    /* Tab Controls */
+    .tab-buttons {
+      display: flex;
+      gap: 2px;
+      margin-bottom: -2px;
+      z-index: 1;
+    }
+
+    .tab-btn {
+      padding: 3px 8px;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #000;
+      background: #c0c0c0;
+    }
+
+    .tab-btn.active {
+      background: #c0c0c0;
+      margin-bottom: -2px;
+      padding-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .tab-content {
+      border: 2px solid #ffffff;
+      border-top: 2px solid #dfdfdf;
+      border-left: 2px solid #dfdfdf;
+      border-right: 2px solid #000000;
+      border-bottom: 2px solid #000000;
+      padding: 10px;
+      flex: 1;
+      background: #c0c0c0;
+    }
+
+    /* Monitor Preview */
+    .monitor-wrapper {
+      width: 150px;
+      height: 110px;
+      margin: 0 auto 10px;
+      position: relative;
+    }
+
+    .monitor-screen-bezel {
+      width: 130px;
+      height: 90px;
+      background: #808080;
+      border-top: 3px solid #000;
+      border-left: 3px solid #000;
+      border-right: 3px solid #fff;
+      border-bottom: 3px solid #fff;
+      margin: 0 auto;
+      padding: 6px;
+    }
+
+    .monitor-screen {
+      width: 100%;
+      height: 100%;
+      border: 2px solid #000;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .monitor-stand {
+      width: 40px;
+      height: 10px;
+      background: #a0a0a0;
+      margin: 0 auto;
+      border: 1px solid #000;
+    }
+
+    /* Fullscreen Screen Saver Canvas */
+    #screensaver-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: black;
+      z-index: 999999;
+      display: none;
+    }
+
+    /* Minesweeper Grid */
+    .ms-grid {
+      display: grid;
+      gap: 1px;
+      background: #808080;
+      border: 2px solid;
+      border-color: #808080 #fff #fff #808080;
+    }
+
+    .ms-cell {
+      width: 16px;
+      height: 16px;
+      font-weight: bold;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body class="bg-teal" id="body-root">
+
+  <!-- SVG Custom Pixel Mouse Cursor Overlay -->
+  <svg id="custom-cursor" viewBox="0 0 16 24">
+    <path d="M0,0 L0,18 L4,14 L8,22 L11,20 L7,13 L13,13 Z" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+  </svg>
+
+  <div id="desktop">
+    <!-- Notepad Icon -->
+    <div class="desktop-icon" onclick="openWindow('win-notepad')" tabindex="0">
+      <svg width="32" height="32" viewBox="0 0 32 32">
+        <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M6 2 h14 l6 6 v22 h-20 z"/>
+        <path fill="#808080" d="M20 2 v6 h6 z"/>
+        <path fill="#000080" d="M8 4 h10 v2 h-10 z"/>
+        <line x1="9" y1="10" x2="23" y2="10" stroke="#000" stroke-width="1"/>
+        <line x1="9" y1="14" x2="23" y2="14" stroke="#000" stroke-width="1"/>
+        <line x1="9" y1="18" x2="23" y2="18" stroke="#000" stroke-width="1"/>
+        <line x1="9" y1="22" x2="19" y2="22" stroke="#000" stroke-width="1"/>
+      </svg>
+      <span>Notepad</span>
+    </div>
+
+    <!-- Control Panel Icon -->
+    <div class="desktop-icon" onclick="openWindow('win-cpanel')" tabindex="0">
+      <svg width="32" height="32" viewBox="0 0 32 32">
+        <rect x="3" y="3" width="26" height="26" fill="#c0c0c0" stroke="#000000" stroke-width="1"/>
+        <rect x="5" y="5" width="22" height="5" fill="#000080"/>
+        <circle cx="11" cy="16" r="3" fill="#808080" stroke="#000" stroke-width="1"/>
+        <line x1="11" y1="12" x2="11" y2="24" stroke="#000" stroke-width="1"/>
+        <circle cx="21" cy="20" r="3" fill="#808080" stroke="#000" stroke-width="1"/>
+        <line x1="21" y1="12" x2="21" y2="24" stroke="#000" stroke-width="1"/>
+      </svg>
+      <span>Control Panel</span>
+    </div>
+
+    <!-- File Manager Icon -->
+    <div class="desktop-icon" onclick="openWindow('win-filemgr')" tabindex="0">
+      <svg width="32" height="32" viewBox="0 0 32 32">
+        <path fill="#ffb900" stroke="#000000" stroke-width="1" d="M2 6 h10 l3 3 h15 v17 h-28 z"/>
+        <rect x="5" y="12" width="22" height="11" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+        <line x1="8" y1="15" x2="24" y2="15" stroke="#000080" stroke-width="1"/>
+        <line x1="8" y1="18" x2="20" y2="18" stroke="#808080" stroke-width="1"/>
+      </svg>
+      <span>File Manager</span>
+    </div>
+
+    <!-- Minesweeper Icon -->
+    <div class="desktop-icon" onclick="openWindow('win-minesweeper')" tabindex="0">
+      <svg width="32" height="32" viewBox="0 0 32 32">
+        <rect x="2" y="2" width="28" height="28" fill="#c0c0c0" stroke="#000" stroke-width="1"/>
+        <circle cx="16" cy="16" r="7" fill="#000000"/>
+        <line x1="16" y1="4" x2="16" y2="28" stroke="#000" stroke-width="2"/>
+        <line x1="4" y1="16" x2="28" y2="16" stroke="#000" stroke-width="2"/>
+        <line x1="7" y1="7" x2="25" y2="25" stroke="#000" stroke-width="2"/>
+        <line x1="25" y1="7" x2="7" y2="25" stroke="#000" stroke-width="2"/>
+        <circle cx="14" cy="14" r="2" fill="#ffffff"/>
+      </svg>
+      <span>Minesweeper</span>
+    </div>
+
+    <!-- Recycle Bin Icon -->
+    <div class="desktop-icon" onclick="openWindow('win-recycle')" tabindex="0">
+      <svg width="32" height="32" viewBox="0 0 32 32">
+        <path fill="#c0c0c0" stroke="#000" stroke-width="1" d="M6 9 h20 l-2 18 h-16 z"/>
+        <path fill="#808080" stroke="#000" stroke-width="1" d="M4 6 h24 v3 h-24 z"/>
+        <rect x="12" y="3" width="8" height="3" fill="#808080" stroke="#000" stroke-width="1"/>
+        <line x1="11" y1="12" x2="12" y2="23" stroke="#000" stroke-width="1"/>
+        <line x1="16" y1="12" x2="16" y2="23" stroke="#000" stroke-width="1"/>
+        <line x1="21" y1="12" x2="20" y2="23" stroke="#000" stroke-width="1"/>
+      </svg>
+      <span>Recycle Bin</span>
+    </div>
+  </div>
+
+  <!-- Display Properties Window -->
+  <div id="win-display" class="window win-outset" style="top:40px; left:80px; width:380px; display:none;">
+    <div class="window-titlebar" onmousedown="initDrag(event, 'win-display')">
+      <div class="window-title-text">
+        <svg width="14" height="14" viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="20" fill="#000080"/><path fill="#fff" d="M8 26h16v2H8z"/></svg>
+        Display Properties
+      </div>
+      <div class="window-controls">
+        <button class="win-button win-btn-small" onclick="closeWindow('win-display')">x</button>
+      </div>
+    </div>
+    <div class="window-body">
+      <div class="tab-buttons">
+        <button class="tab-btn active" id="tab-btn-bg" onclick="switchTab('bg')">Background</button>
+        <button class="tab-btn" id="tab-btn-ss" onclick="switchTab('ss')">Screen Saver</button>
+      </div>
+      <div class="tab-content">
+        <!-- Background Tab -->
+        <div id="tab-bg-content">
+          <div class="monitor-wrapper">
+            <div class="monitor-screen-bezel">
+              <div id="monitor-preview" class="monitor-screen bg-teal"></div>
+            </div>
+            <div class="monitor-stand"></div>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <div style="flex:1;">
+              <label>Pattern / Wallpaper:</label>
+              <div class="win-inset" style="height:100px; overflow-y:auto; margin-top:4px; background:#fff;">
+                <div class="start-menu-item" onclick="selectWallpaper('bg-teal')">[None / Teal Default]</div>
+                <div class="start-menu-item" onclick="selectWallpaper('bg-blue-rivets')">Blue Rivets</div>
+                <div class="start-menu-item" onclick="selectWallpaper('bg-houndstooth')">Houndstooth</div>
+                <div class="start-menu-item" onclick="selectWallpaper('bg-red-blocks')">Red Blocks</div>
+                <div class="start-menu-item" onclick="selectWallpaper('bg-setup')">Setup</div>
+                <div class="start-menu-item" onclick="selectWallpaper('bg-straw-mat')">Straw Mat</div>
+                <div class="start-menu-item" onclick="selectWallpaper('bg-tiles')">Tiles</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen Saver Tab -->
+        <div id="tab-ss-content" style="display:none;">
+          <div class="monitor-wrapper">
+            <div class="monitor-screen-bezel">
+              <div id="monitor-ss-preview" class="monitor-screen" style="background:#000; display:flex; align-items:center; justify-content:center;">
+                <canvas id="ss-mini-canvas" width="120" height="80"></canvas>
+              </div>
+            </div>
+            <div class="monitor-stand"></div>
+          </div>
+          <fieldset style="border:1px solid #808080; padding:8px; margin-bottom:10px;">
+            <legend>Screen Saver</legend>
+            <select id="ss-selector" style="width:100%; margin-bottom:8px;" onchange="updateMiniSS()">
+              <option value="none">(None)</option>
+              <option value="flying-win">Flying Windows</option>
+              <option value="pipes">3D Pipes</option>
+              <option value="starfield">Starfield Simulation</option>
+              <option value="blank">Blank Screen</option>
+            </select>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>Wait: <input type="number" value="1" min="1" max="60" style="width:40px;"> mins</div>
+              <button class="win-button" onclick="startFullscreenSS()">Test</button>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:8px;">
+        <button class="win-button" onclick="applyDisplaySettings(); closeWindow('win-display');">OK</button>
+        <button class="win-button" onclick="closeWindow('win-display')">Cancel</button>
+        <button class="win-button" onclick="applyDisplaySettings()">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Control Panel Window -->
+  <div id="win-cpanel" class="window win-outset" style="top:70px; left:120px; width:420px; height:280px; display:none;">
+    <div class="window-titlebar" onmousedown="initDrag(event, 'win-cpanel')">
+      <div class="window-title-text">Control Panel</div>
+      <div class="window-controls">
+        <button class="win-button win-btn-small" onclick="closeWindow('win-cpanel')">x</button>
+      </div>
+    </div>
+    <div class="window-body win-inset" style="background:#fff; display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; padding:10px;">
+      <div class="desktop-icon" style="width:auto;" onclick="openWindow('win-datetime')">
+        <svg width="32" height="32" viewBox="0 0 32 32">
+          <rect x="4" y="4" width="24" height="24" fill="#fff" stroke="#000" stroke-width="1"/>
+          <rect x="4" y="4" width="24" height="6" fill="#ff0000"/>
+          <circle cx="16" cy="18" r="6" fill="none" stroke="#000" stroke-width="1"/>
+          <line x1="16" y1="18" x2="16" y2="14" stroke="#000"/>
+          <line x1="16" y1="18" x2="19" y2="18" stroke="#000"/>
+        </svg>
+        <span style="color:#000; text-shadow:none;">Date/Time</span>
+      </div>
+
+      <div class="desktop-icon" style="width:auto;" onclick="openWindow('win-display')">
+        <svg width="32" height="32" viewBox="0 0 32 32">
+          <rect x="4" y="4" width="24" height="18" fill="#000080" stroke="#000"/>
+          <path fill="#c0c0c0" d="M10 22 h12 v4 h-12 z"/>
+          <path fill="#808080" d="M8 26 h16 v2 h-16 z"/>
+        </svg>
+        <span style="color:#000; text-shadow:none;">Display</span>
+      </div>
+
+      <div class="desktop-icon" style="width:auto;" onclick="openWindow('win-mouse')">
+        <svg width="32" height="32" viewBox="0 0 32 32">
+          <path fill="#fff" stroke="#000" stroke-width="1" d="M10 6 c0 -2 12 -2 12 0 v14 c0 6 -12 6 -12 0 z"/>
+          <line x1="16" y1="4" x2="16" y2="12" stroke="#000"/>
+          <line x1="10" y1="12" x2="22" y2="12" stroke="#000"/>
+        </svg>
+        <span style="color:#000; text-shadow:none;">Mouse</span>
+      </div>
+
+      <div class="desktop-icon" style="width:auto;" onclick="openWindow('win-system')">
+        <svg width="32" height="32" viewBox="0 0 32 32">
+          <rect x="4" y="6" width="24" height="18" fill="#c0c0c0" stroke="#000"/>
+          <rect x="7" y="9" width="18" height="12" fill="#000"/>
+          <path fill="#00ff00" d="M9 11 h5 v2 h-5 z M9 15 h8 v2 h-8 z"/>
+        </svg>
+        <span style="color:#000; text-shadow:none;">System</span>
+      </div>
+
+      <div class="desktop-icon" style="width:auto;" onclick="openWindow('win-netwiz')">
+        <svg width="32" height="32" viewBox="0 0 32 32">
+          <circle cx="16" cy="16" r="10" fill="#1084d0" stroke="#000"/>
+          <path stroke="#fff" fill="none" stroke-width="1" d="M6 16 h20 M16 6 v20 M9 10 c4 3 10 3 14 0 M9 22 c4 -3 10 -3 14 0"/>
+        </svg>
+        <span style="color:#000; text-shadow:none;">Network</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Date/Time Properties Window -->
+  <div id="win-datetime" class="window win-outset" style="top:100px; left:150px; width:300px; display:none;">
+    <div class="window-titlebar" onmousedown="initDrag(event, 'win-datetime')">
+      <div class="window-title-text">Date/Time Properties</div>
+      <div class="window-controls">
+        <button class="win-button win-btn-small" onclick="closeWindow('win-datetime')">x</button>
+      </div>
+    </div>
+    <div class="window-body">
+      <div style="display:flex; gap:10px; margin-bottom:10px;">
+        <div style="flex:1;">
+          <label>Date</label>
+          <input type="date" value="1995-08-24" class="win-inset" style="width:100%; padding:2px;">
+        </div>
+        <div style="flex:1;">
+          <label>Time</label>
+          <input type="time" value="12:00" class="win-inset" style="width:100%; padding:2px;">
+        </div>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:4px;">
+        <button class="win-button" onclick="closeWindow('win-datetime')">OK</button>
+        <button class="win-button" onclick="closeWindow('win-datetime')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mouse Properties Window -->
+  <div id="win-mouse" class="window win-outset" style="top:110px; left:170px; width:280px; display:none;">
+    <div class="window-titlebar" onmousedown="initDrag(event, 'win-mouse')">
+      <div class="window-title-text">Mouse Properties</div>
+      <div class="window-controls">
+        <button class="win-button win-btn-small" onclick="closeWindow('win-mouse')">x</button>
+      </div>
+    </div>
+    <div class="window-body">
+      <label><input type="checkbox"> Left-handed configuration</label><br><br>
+      <label>Double-click speed:</label>
+      <input type="range" min="1" max="10" value="5" style="width:100%;"><br><br>
+      <div style="display:flex; justify-content:flex-end; gap:4px;">
+        <button class="win-button" onclick="closeWindow('win-mouse')">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- System Properties Window -->
+  <div id="win-system" class="window win-outset" style="top:90px; left:130px; width:320px; display:none;">
+    <div class="window-titlebar" onmousedown="initDrag(event, 'win-system')">
+      <div class="window-title-text">System Properties</div>
+      <div class="window-controls">
+        <button class="win-button win-btn-small" onclick="closeWindow('win-system')">x</button>
+      </div>
+    </div>
+    <div class="window-body">
+      <p><b>System:</b><br>openwin 95<br>4.00.950 B</p>
+      <p><b>Registered to:</b><br>TJ<br>
+      <p><b>Computer:</b><br>apple slicon a16 bionic Processor<br>4gb RAM</p>
+      <div style="display:flex; justify-content:flex-end;">
+        <button class="win-button" onclick="closeWindow('win-system')">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Internet Connection Wizard Window -->
+  <div id="win-netwiz" class="window win-outset" style="top:80px; left:160px; width:380px; height:250px; display:none;">
+    <div class="window-titlebar" onmousedown="initDrag(event, 'win-netwiz')">
+      <div class="window-title-text">Internet Connection Wizard</div>
+      <div class="window-controls">
+        <button class="win-button win-btn-small" onclick="closeWindow('win-netwiz')">x</button>
+      </div>
+    </div>
+    <div class="window-body">
+      <div id="wiz-step-1">
+        <p><b>Welcome to the Internet Connection Wizard</b></p>
+        <p>Select how you want to connect to the Internet:</p>
+        <div class="win-inset" style="padding:8px; background:#fff;">
+          <input type="radio" name="net-type" checked> Dial-up modem (56k)<br>
+          <input type="radio" name="net-type"> Local Area Network (LAN)
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:20px;">
+          <button class="win-button" onclick="goToWizStep(2)">Next ></button>
+          <button class="win-button" onclick="closeWindow('win-netwiz')">Cancel</button>
+        </div>
+      </div>
+      <div id="wiz-step-2" style="display:none;">
+        <p><b>Dialing Internet Service Provider...</b></p>
+        <p>Phone Number: 555-0199</p>
+        <div class="win-inset" style="padding:10px; background:#000; color:#00ff00; font-family:monospace;" id="wiz-status">
+          Connecting at 56,000 bps...
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:20px;">
+          <button class="win-button" onclick="finishWiz()">Finish</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Minesweeper Window -->
+  <div id="win-minesweeper" class="window win-outset" style="top:60px; left:200px; display:none;">
+    <div class="window-titlebar" onmousedown="initDrag(event, 'win-minesweeper')">
+      <div class="window-title-text">Minesweeper</div>
+      <div class="window-controls">
+        <button class="win-button win-btn-small" onclick="closeWindow('win-minesweeper')">x</button>
+      </div>
+    </div>
+    <div class="window-menubar">
+      <span class="menubar-item" onclick="initMinesweeper()">New Game</span>
+    </div>
+    <div class="window-body" style="align-items:center;">
+      <div class="win-inset" style="display:flex; justify-content:space-between; width:100%; padding:4px; margin-bottom:6px; background:#c0c0c0;">
+        <div id="ms-score" class="win-inset" style="background:#000; color:red; font-family:monospace; font-size:16px; padding:2px;">010</div>
+        <button class="win-button" onclick="initMinesweeper()" id="ms-reset-btn">🙂</button>
+        <div id="ms-timer" class="win-inset" style="background:#000; color:red; font-family:monospace; font-size:16px; padding:2px;">000</div>
+      </div>
+      <div id="ms-grid" class="ms-grid"></div>
+    </div>
+  </div>
+
+  <!-- Notepad Window -->
+  <div id="win-notepad" class="window win-outset" style="top:50px; left:100px; width:320px; height:220px; display:none;">
+    <div class="window-titlebar" onmousedown="initDrag(event, 'win-notepad')">
+      <div class="window-title-text">Untitled - Notepad</div>
+      <div class="window-controls">
+        <button class="win-button win-btn-small" onclick="closeWindow('win-notepad')">x</button>
+      </div>
+    </div>
+    <div class="window-menubar">
+      <span class="menubar-item">File</span>
+      <span class="menubar-item">Edit</span>
+      <span class="menubar-item">Search</span>
+      <span class="menubar-item">Help</span>
+    </div>
+    <div class="window-body" style="padding:0;">
+      <textarea class="win-inset" style="width:100%; height:100%; border:none; resize:none; font-family:monospace; padding:4px; outline:none;"></textarea>
+    </div>
+  </div>
+
+  <!-- File Manager Window -->
+  <div id="win-filemgr" class="window win-outset" style="top:80px; left:140px; width:440px; height:280px; display:none;">
+    <div class="window-titlebar" onmousedown="initDrag(event, 'win-filemgr')">
+      <div class="window-title-text">File Manager - [C:\*.*]</div>
+      <div class="window-controls">
+        <button class="win-button win-btn-small" onclick="closeWindow('win-filemgr')">x</button>
+      </div>
+    </div>
+    <div class="window-body" style="flex-direction:row; gap:4px;">
+      <div class="win-inset" style="width:40%; padding:4px; overflow-y:auto; background:#fff;">
+        📁 C:\<br>
+        &nbsp;&nbsp;📁 osdir<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;📁 SYSTEM<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;📁 COMMAND<br>
+        &nbsp;&nbsp;📁 My Documents
+      </div>
+      <div class="win-inset" style="width:60%; padding:4px; background:#fff; overflow-y:auto;">
+        📄 AUTOEXEC.BAT<br>
+        📄 CONFIG.SYS<br>
+        ⚙️ osload.bin<br>
+        📝 README.TXT
+      </div>
+    </div>
+  </div>
+
+  <!-- Recycle Bin Window -->
+  <div id="win-recycle" class="window win-outset" style="top:110px; left:180px; width:320px; height:200px; display:none;">
+    <div class="window-titlebar" onmousedown="initDrag(event, 'win-recycle')">
+      <div class="window-title-text">Recycle Bin</div>
+      <div class="window-controls">
+        <button class="win-button win-btn-small" onclick="closeWindow('win-recycle')">x</button>
+      </div>
+    </div>
+    <div class="window-body">
+      <div style="margin-bottom:6px;">
+        <button class="win-button" onclick="emptyRecycleBin()">Empty Recycle Bin</button>
+      </div>
+      <div class="win-inset" id="recycle-list" style="flex:1; padding:4px; background:#fff;">
+        🗑️ deleted_draft.txt<br>
+        🗑️ old_image.bmp
+      </div>
+    </div>
+  </div>
+
+  <!-- Start Menu -->
+  <div id="start-menu" class="win-outset">
+    <div style="display:flex; height:100%;">
+      <div class="start-menu-sidebar">openwin 95</div>
+      <div class="start-menu-items">
+        <div class="start-menu-item" onclick="openWindow('win-notepad')">📝 Notepad</div>
+        <div class="start-menu-item" onclick="openWindow('win-minesweeper')">💣 Minesweeper</div>
+        <div class="start-menu-item" onclick="openWindow('win-filemgr')">📁 File Manager</div>
+        <div class="start-menu-item" onclick="openWindow('win-cpanel')">⚙️ Control Panel</div>
+        <div class="start-menu-item" onclick="openWindow('win-display')">🖥️ Display Properties</div>
+        <hr style="border-top:1px solid #808080; border-bottom:1px solid #fff; margin:2px 0;">
+        <div class="start-menu-item" onclick="alert('Shut Down openwin 95?')">💻 Shut Down...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Taskbar with Start on Left and System Tray/Clock on Right -->
+  <div id="taskbar">
+    <button id="start-button" class="win-button" onclick="toggleStartMenu()">
+      <svg width="16" height="16" viewBox="0 0 32 32"><path fill="#ff0000" d="M2 4l12-2v13H2z"/><path fill="#00ff00" d="M16 1l14-2v16H16z"/><path fill="#0000ff" d="M2 17l12 1v12H2z"/><path fill="#ffff00" d="M16 17l14 2v11H16z"/></svg>
+      Start
+    </button>
+    <div id="taskbar-tasks"></div>
+    <div id="system-tray" class="win-inset">
+      <span id="clock-display">16:03 PM</span>
+    </div>
+  </div>
+
+  <!-- Fullscreen Screensaver Overlay -->
+  <div id="screensaver-overlay" onclick="stopFullscreenSS()">
+    <canvas id="ss-full-canvas"></canvas>
+  </div>
+
+  <script>
+    // Custom Retro Pixel Cursor Movement Logic
+    const customCursor = document.getElementById('custom-cursor');
+    document.addEventListener('mousemove', (e) => {
+      customCursor.style.left = e.clientX + 'px';
+      customCursor.style.top = e.clientY + 'px';
+    });
+
+    // Clock Implementation
+    function updateClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12 || 12;
+      document.getElementById('clock-display').innerText = `${hours}:${minutes} ${ampm}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Start Menu Toggle
+    function toggleStartMenu() {
+      const menu = document.getElementById('start-menu');
+      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+
+    document.getElementById('desktop').addEventListener('click', () => {
+      document.getElementById('start-menu').style.display = 'none';
+    });
+
+    // Window Management System
+    let activeZIndex = 100;
+    function openWindow(id) {
+      const win = document.getElementById(id);
+      if (!win) return;
+      win.style.display = 'flex';
+      focusWindow(id);
+      updateTaskbar();
+    }
+
+    function closeWindow(id) {
+      const win = document.getElementById(id);
+      if (!win) return;
+      win.style.display = 'none';
+      updateTaskbar();
+    }
+
+    function focusWindow(id) {
+      document.querySelectorAll('.window').forEach(w => w.classList.add('inactive'));
+      const target = document.getElementById(id);
+      if (target) {
+        target.classList.remove('inactive');
+        target.style.zIndex = ++activeZIndex;
+      }
+      updateTaskbar();
+    }
+
+    function updateTaskbar() {
+      const container = document.getElementById('taskbar-tasks');
+      container.innerHTML = '';
+      document.querySelectorAll('.window').forEach(win => {
+        if (win.style.display !== 'none') {
+          const titleText = win.querySelector('.window-title-text').innerText;
+          const btn = document.createElement('button');
+          btn.className = `win-button task-item ${win.classList.contains('inactive') ? '' : 'active'}`;
+          btn.innerText = titleText;
+          btn.onclick = () => {
+            if (win.classList.contains('inactive')) {
+              focusWindow(win.id);
+            } else {
+              win.style.display = 'none';
+              updateTaskbar();
+            }
+          };
+          container.appendChild(btn);
+        }
+      });
+    }
+
+    // Drag and Drop Mechanics
+    let draggedWin = null;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+
+    function initDrag(e, winId) {
+      if (e.target.tagName.toLowerCase() === 'button') return;
+      
+      draggedWin = document.getElementById(winId);
+      if (!draggedWin) return;
+      
+      focusWindow(winId);
+      dragOffsetX = e.clientX - draggedWin.offsetLeft;
+      dragOffsetY = e.clientY - draggedWin.offsetTop;
+
+      document.addEventListener('mousemove', handleDrag);
+      document.addEventListener('mouseup', stopDrag);
+    }
+
+    function handleDrag(e) {
+      if (!draggedWin) return;
+      let newLeft = e.clientX - dragOffsetX;
+      let newTop = e.clientY - dragOffsetY;
+
+      newLeft = Math.max(0, Math.min(window.innerWidth - 50, newLeft));
+      newTop = Math.max(0, Math.min(window.innerHeight - 50, newTop));
+
+      draggedWin.style.left = newLeft + 'px';
+      draggedWin.style.top = newTop + 'px';
+    }
+
+    function stopDrag() {
+      draggedWin = null;
+      document.removeEventListener('mousemove', handleDrag);
+      document.removeEventListener('mouseup', stopDrag);
+    }
+
+    // Display Properties Tabs & Wallpaper Handler
+    function switchTab(tab) {
+      document.getElementById('tab-btn-bg').classList.toggle('active', tab === 'bg');
+      document.getElementById('tab-btn-ss').classList.toggle('active', tab === 'ss');
+      document.getElementById('tab-bg-content').style.display = tab === 'bg' ? 'block' : 'none';
+      document.getElementById('tab-ss-content').style.display = tab === 'ss' ? 'block' : 'none';
+      if (tab === 'ss') updateMiniSS();
+    }
+
+    let currentSelectedWallpaper = 'bg-teal';
+    function selectWallpaper(cls) {
+      currentSelectedWallpaper = cls;
+      document.getElementById('monitor-preview').className = 'monitor-screen ' + cls;
+    }
+
+    function applyDisplaySettings() {
+      document.getElementById('body-root').className = currentSelectedWallpaper;
+    }
+
+    // Internet Connection Wizard Steps
+    function goToWizStep(step) {
+      document.getElementById('wiz-step-1').style.display = step === 1 ? 'block' : 'none';
+      document.getElementById('wiz-step-2').style.display = step === 2 ? 'block' : 'none';
+    }
+
+    function finishWiz() {
+      alert('Internet Connection Established Successfully!');
+      closeWindow('win-netwiz');
+      goToWizStep(1);
+    }
+
+    // Recycle Bin Clear
+    function emptyRecycleBin() {
+      document.getElementById('recycle-list').innerHTML = '<i>Recycle Bin is empty.</i>';
+    }
+
+    // Minesweeper Core Logic
+    const msSize = 9;
+    const msMinesCount = 10;
+    let msGrid = [];
+
+    function initMinesweeper() {
+      const gridEl = document.getElementById('ms-grid');
+      gridEl.style.gridTemplateColumns = `repeat(${msSize}, 16px)`;
+      gridEl.innerHTML = '';
+      msGrid = [];
+      document.getElementById('ms-reset-btn').innerText = '🙂';
+
+      for (let r = 0; r < msSize; r++) {
+        msGrid[r] = [];
+        for (let c = 0; c < msSize; c++) {
+          msGrid[r][c] = { mine: false, revealed: false, flagged: false, count: 0 };
+        }
+      }
+
+      let planted = 0;
+      while (planted < msMinesCount) {
+        let r = Math.floor(Math.random() * msSize);
+        let c = Math.floor(Math.random() * msSize);
+        if (!msGrid[r][c].mine) {
+          msGrid[r][c].mine = true;
+          planted++;
+        }
+      }
+
+      for (let r = 0; r < msSize; r++) {
+        for (let c = 0; c < msSize; c++) {
+          if (!msGrid[r][c].mine) {
+            let cnt = 0;
+            for (let dr = -1; dr <= 1; dr++) {
+              for (let dc = -1; dc <= 1; dc++) {
+                let nr = r + dr, nc = c + dc;
+                if (nr >= 0 && nr < msSize && nc >= 0 && nc < msSize && msGrid[nr][nc].mine) cnt++;
+              }
+            }
+            msGrid[r][c].count = cnt;
+          }
+        }
+      }
+
+      for (let r = 0; r < msSize; r++) {
+        for (let c = 0; c < msSize; c++) {
+          const btn = document.createElement('div');
+          btn.className = 'ms-cell win-outset';
+          btn.onclick = () => clickMsCell(r, c);
+          btn.oncontextmenu = (e) => { e.preventDefault(); flagMsCell(r, c); };
+          btn.id = `ms-${r}-${c}`;
+          gridEl.appendChild(btn);
+        }
+      }
+    }
+
+    function clickMsCell(r, c) {
+      let cell = msGrid[r][c];
+      if (cell.revealed || cell.flagged) return;
+      cell.revealed = true;
+      const el = document.getElementById(`ms-${r}-${c}`);
+      el.className = 'ms-cell win-inset';
+
+      if (cell.mine) {
+        el.innerText = '💣';
+        document.getElementById('ms-reset-btn').innerText = '😵';
+        alert('Game Over!');
+      } else {
+        if (cell.count > 0) el.innerText = cell.count;
+        else {
+          for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+              let nr = r + dr, nc = c + dc;
+              if (nr >= 0 && nr < msSize && nc >= 0 && nc < msSize) clickMsCell(nr, nc);
+            }
+          }
+        }
+      }
+    }
+
+    function flagMsCell(r, c) {
+      let cell = msGrid[r][c];
+      if (cell.revealed) return;
+      cell.flagged = !cell.flagged;
+      document.getElementById(`ms-${r}-${c}`).innerText = cell.flagged ? '🚩' : '';
+    }
+
+    initMinesweeper();
+
+    // Screensaver Rendering Engines
+    let miniSSAnim = null;
+    let fullSSAnim = null;
+
+    function updateMiniSS() {
+      if (miniSSAnim) cancelAnimationFrame(miniSSAnim);
+      const canvas = document.getElementById('ss-mini-canvas');
+      const ctx = canvas.getContext('2d');
+      const type = document.getElementById('ss-selector').value;
+
+      if (type === 'flying-win') renderFlyingWin(ctx, canvas, true);
+      else if (type === 'pipes') renderPipes(ctx, canvas, true);
+      else if (type === 'starfield') renderStarfield(ctx, canvas, true);
+      else { ctx.fillStyle = 'black'; ctx.fillRect(0,0,canvas.width,canvas.height); }
+    }
+
+    function startFullscreenSS() {
+      const type = document.getElementById('ss-selector').value;
+      if (type === 'none') return;
+
+      const overlay = document.getElementById('screensaver-overlay');
+      overlay.style.display = 'block';
+      const canvas = document.getElementById('ss-full-canvas');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const ctx = canvas.getContext('2d');
+
+      if (type === 'flying-win') renderFlyingWin(ctx, canvas, false);
+      else if (type === 'pipes') renderPipes(ctx, canvas, false);
+      else if (type === 'starfield') renderStarfield(ctx, canvas, false);
+      else { ctx.fillStyle = 'black'; ctx.fillRect(0,0,canvas.width,canvas.height); }
+    }
+
+    function stopFullscreenSS() {
+      document.getElementById('screensaver-overlay').style.display = 'none';
+      if (fullSSAnim) cancelAnimationFrame(fullSSAnim);
+    }
+
+    function renderStarfield(ctx, canvas, isMini) {
+      const stars = Array.from({length: 100}, () => ({
+        x: Math.random() * canvas.width - canvas.width/2,
+        y: Math.random() * canvas.height - canvas.height/2,
+        z: Math.random() * canvas.width
+      }));
+
+      function step() {
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'white';
+        stars.forEach(s => {
+          s.z -= 2;
+          if (s.z <= 0) s.z = canvas.width;
+          let k = 64 / s.z;
+          let px = s.x * k + canvas.width / 2;
+          let py = s.y * k + canvas.height / 2;
+          if (px >= 0 && px < canvas.width && py >= 0 && py < canvas.height) {
+            ctx.fillRect(px, py, 2, 2);
+          }
+        });
+        if (isMini) miniSSAnim = requestAnimationFrame(step);
+        else fullSSAnim = requestAnimationFrame(step);
+      }
+      step();
+    }
+
+    function renderFlyingWin(ctx, canvas, isMini) {
+      const items = Array.from({length: 10}, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: isMini ? 12 : 30
+      }));
+
+      function step() {
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        items.forEach(it => {
+          it.x -= 1;
+          if (it.x < -20) it.x = canvas.width + 20;
+          ctx.fillStyle = '#ff0000'; ctx.fillRect(it.x, it.y, it.size/2, it.size/2);
+          ctx.fillStyle = '#00ff00'; ctx.fillRect(it.x + it.size/2, it.y, it.size/2, it.size/2);
+          ctx.fillStyle = '#0000ff'; ctx.fillRect(it.x, it.y + it.size/2, it.size/2, it.size/2);
+          ctx.fillStyle = '#ffff00'; ctx.fillRect(it.x + it.size/2, it.y + it.size/2, it.size/2, it.size/2);
+        });
+        if (isMini) miniSSAnim = requestAnimationFrame(step);
+        else fullSSAnim = requestAnimationFrame(step);
+      }
+      step();
+    }
+
+    function renderPipes(ctx, canvas, isMini) {
+      ctx.fillStyle = 'black';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      let x = canvas.width / 2, y = canvas.height / 2;
+
+      function step() {
+        ctx.strokeStyle = '#00ff00';
+        ctx.lineWidth = isMini ? 3 : 8;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        let dir = Math.floor(Math.random() * 4);
+        if (dir === 0) x += 10;
+        else if (dir === 1) x -= 10;
+        else if (dir === 2) y += 10;
+        else if (dir === 3) y -= 10;
+        if (x < 0 || x > canvas.width || y < 0 || y > canvas.height) {
+          x = canvas.width / 2; y = canvas.height / 2;
+        }
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        if (isMini) miniSSAnim = requestAnimationFrame(step);
+        else fullSSAnim = requestAnimationFrame(step);
+      }
+      step();
+    }
+  </script>
+</body>
+</html>
